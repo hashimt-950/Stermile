@@ -1,19 +1,8 @@
-const User = require("../models/Users.model.js");
+const express = require("express");
+const signup = require("../controllers/authControllers.js");
 
-const authRoute = async (req, res) => {
-  try {
-    const user = new User({
-      name: req.body.name,
-      email: req.body.email,
-      password: req.body.password,
-    });
+const router = express.Router();
 
-    await user.save();
-    console.log("user created");
-    res.json(user);
-  } catch (error) {
-    console.log("error while registering user: ", error.message);
-  }
-};
+router.post("/signup", signup);
 
-module.exports = authRoute;
+module.exports = router;
