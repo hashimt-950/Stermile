@@ -1,0 +1,355 @@
+
+
+.auth{
+    background-color: rgb(255, 255, 255) !important;
+    min-height: 100vh;
+}
+
+.coverimg{
+    width: 125px;
+    border-radius: 8px;
+}
+
+.img {
+    width: 100%;
+    height: 100%;
+}
+
+.onimg-text{
+    color: white;
+    bottom: 20px;
+    left: 40px;
+    font-size: 35px;
+    font-weight: 300;
+    position: absolute;
+    z-index: 2; /* make sure it's above the image */
+}
+
+.Watch{
+    color: #757070;
+}
+
+
+.Buddy{
+    color: #9C9C9C;
+    margin-left: 3px;
+
+}
+
+.logo{
+    font-size: 30px;
+    text-align: center;
+    margin-top: 50px;
+}
+
+.welcome{
+    color: #727272;
+    margin-top: 60px;
+    font-size: 20px;
+    text-align: center;
+    font-weight: 400;
+}
+
+
+
+.loginCred-container{
+    margin-top: 40px;
+}
+
+.signup-link{
+    text-decoration: none;
+}
+
+
+.credInput{
+    display: block;
+    outline: none;
+    border: none;
+    width: 300px;
+    color: #727272;
+}
+
+.credInput::placeholder{
+    color: #727272;
+    opacity: 0.7;
+}
+
+
+.input-container{
+    margin-top: 30px;
+    width: 300px;
+    padding: 5px 5px 5px;
+    padding-left: 0;
+    border-bottom: 1px solid #5F5F5F;
+}
+
+
+.forgot-password{
+    color: #727272;
+    font-size: 13px;
+    margin-top: 15px;
+    font-weight: 400;
+}
+
+.loginSignupBtn-container{
+    margin-top: 60px;
+}
+
+
+.loginSignupBtn{
+    padding: 10px 30px 10px 30px;
+    border: 1px solid #727272;
+    border-radius: 50px;
+    font-size: 14px;
+    background: none;
+    color: #727272;
+}
+
+.loginSignupBtn:hover{
+    background-color: #353434;
+    color: white;
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+.signupLogin-link-text{
+    color: #727272;
+    font-weight: 400;
+}
+
+.signupLogin-link{
+    color: #353434;
+    text-decoration: none;
+    padding-bottom: 8px;
+    margin-left: 5px;
+}
+
+.signupLogin-link:hover{
+    opacity: 0.5;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.navbar-logo{
+    font-weight: 500;
+}
+
+.nav-bg{
+  position: absolute; /* or fixed */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  background: transparent;
+}
+
+.main-heading{
+    color: #353434f0;
+    margin-top: 40px;
+    font-size: 30px;
+    text-align: center;
+}
+
+
+
+
+.movie-card{
+    padding:20px;
+    transition: 1s;
+    border: 0.5px solid #35343400;
+}
+
+.movie-card:hover{
+    padding:20px 20px 80px 20px;
+    border-radius: 20px;
+    transition: 1s ;
+    cursor:  pointer;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6),
+                0 0 20px rgba(255, 255, 255, 0.15);
+}
+
+.overview {
+  overflow: hidden;
+  max-height: 3rem; 
+  transition: max-height 0.4s ease;
+  color: #727272;
+  font-size: 15px;
+}
+
+.movie-card:hover .overview {
+  max-height: 500px; 
+  transition: 3s ease;  
+}
+
+.title{
+    color: #353434;
+    font-size: 20px;
+}
+
+.releaseDate{
+    font-weight: 400;
+    color: #727272;
+}
+
+.addBtnContainer{
+    padding: 15px;
+    color: #727272;
+}
+
+.material-symbols-outlined{
+    color: #727272;
+}
+
+.addbtn{
+    border: none;
+    border-radius: 20px;
+    background: none;
+}
+
+.addbtn:hover{
+    transition: 0.1s;
+    opacity: 0.5;
+}
+
+.searchContainer{
+    padding: 12px;
+    width: max-content;
+    border-radius: 50px;
+    /* margin-left: 40px; */
+    border: 1px solid #727272;
+}
+
+.search{
+    border: none;
+    outline: none;
+    height: 25px;
+    width: fit-content;
+    color:#727272;
+    font-size: 15px;
+    background: none;
+}
+
+.search::placeholder{
+    font-size: 15px;
+    color:#727272;
+    opacity: 0.8;
+}
+
+.searchbtn{
+    border: none;
+    background-color: hsl(0, 1%, 21%);
+    border-radius: 25px;
+    width: 45px;
+    height: 45px;
+    /* margin-left: 10px; */
+}
+
+.searchbtn:hover{
+    opacity: 0.9;
+    transition: 0.2s;
+}
+
+.searchIcon{
+    padding-top: 6px;
+    font-size: 22px;
+}
+
+.logout{
+    font-size: 15px;
+    padding: 8px 12px 8px 12px;
+    border-radius: 10px;
+    background: none;
+    border: solid 0.1px rgb(154, 160, 167);
+    color: rgb(154, 160, 167);
+}
+
+.logout:hover{
+    background-color: white;
+    cursor: pointer;
+    color: black;
+    transition: 0.5s;
+    opacity: 0.9;
+}
+
+.logoutIcon{
+    color: rgb(198, 198, 198);
+}
+
+.logoutIcon:hover {
+    opacity: 0.4;
+    transition: 0.3s;
+}
+
+
+.hero-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  color: white;
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  height: 500px; /* Hero height */
+
+  
+}
+
+.d-flex::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari */
+}
+
+.panelBtn{
+    padding: 10px 15px 10px 15px;
+    border-radius: 10px;
+    border: solid 0.1px white;
+    color: black;
+    background-color: white;
+        opacity: 0.9;
+}
+
+.panelBtn:hover{
+    background-color: white;
+    cursor: pointer;
+    color: black;
+    transition: 0.5s;
+    opacity: 0.8;
+}
+
+.panelLabel{
+    padding: 10px 15px 10px 15px;
+    border-radius: 10px;
+    background: none;
+    border: none;
+    color: rgb(156, 156, 156);
+}
+
+.thumbnailContainer{
+    transition: 0.5s;
+    margin-bottom: 50px;
+    padding: 8px 8px 0px 8px;
+    background-color: rgb(41, 38, 38) !important;
+
+}
+
+.cardBtn{
+    transition: 0.5s;
+    border: none;
+    border-radius: 20px;
+    padding-top: 2px;
+    background-color: rgb(31, 29, 29);
+    margin-left: 5px;
+    
+}
+
+.thumbnailContainer:hover{
+    transition: 0.5s;
+    padding: 0;
+}
+
+
+.cardFont{
+    font-size: 14px;
+    color: rgb(154, 160, 167);
+}
+
