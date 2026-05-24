@@ -11,7 +11,7 @@ const nowPlaying = async (req, res) => {
 
     const data = await response.json();
     console.log(data);
-    res.json(data.results);
+    res.json(data);
   } catch (error) {
     console.log("error while fetching movies: ", error.message);
     res.status(500).json({
