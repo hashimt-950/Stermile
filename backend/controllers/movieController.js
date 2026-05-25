@@ -42,4 +42,30 @@ const topRated = async (req, res) => {
   }
 };
 
-module.exports = { nowPlaying, topRated };
+const discover = async (req, res) => {
+  const pages = [1, 2, 3, 4, 5];
+  try {
+    const response = await Promise.all(
+      pages.map((page) =>
+        fetch(`https://api.themoviedb.org/3/discover/movie?page=${page}`, {
+          headers: {
+            Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
+          },
+        }),
+      ),
+    );
+
+    const data = await Promise.all(response.map((res) => res.json()));
+
+    const movies = data.flatMap((item) => item.results);
+    console.log(movies);
+    res.json(movies);
+  } catch (error) {
+    console.log("error while fetching movies: ", error.message);
+    res.status(500).json({
+      error: error.message,
+    });
+  }
+};
+
+module.exports = { nowPlaying, topRated, discover };

@@ -4,5 +4,6 @@ const router = express.Router();
 
 router.get("/nowplaying", movies.nowPlaying);
 router.get("/topRated", movies.topRated);
+router.get("/discover", movies.discover);
 
 module.exports = router;
