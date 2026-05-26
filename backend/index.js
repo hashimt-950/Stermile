@@ -4,6 +4,7 @@ const app = express();
 const connectDB = require("./config/db.js");
 const authRouter = require("./routes/authRoutes.js");
 const movieRouter = require("./routes/movieRoutes.js");
+const watchlistRouter = require("./routes/watchlistRoutes.js");
 const cors = require("cors");
 
 app.use(cors());
@@ -11,6 +12,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRouter);
 app.use("/api/movies", movieRouter);
+app.use("/api/watchlist", watchlistRouter);
 
 app.get("/", (req, res) => {
   res.send("<h2>Stermile backend is live</h2>");
