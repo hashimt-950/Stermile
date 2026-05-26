@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 function MovieTiles() {
   const [topRated, setTopRated] = useState([]);
@@ -21,12 +22,14 @@ function MovieTiles() {
   }, []);
 
   return (
-    <div>
-      <img
-        src={`https://image.tmdb.org/t/p/w500${topRated.poster_path}`}
-        alt=""
-      />
-    </div>
+    <Link to={`/movie/${topRated.id}`}>
+      <div key={topRated.id}>
+        <img
+          src={`https://image.tmdb.org/t/p/w500${topRated.poster_path}`}
+          alt=""
+        />
+      </div>
+    </Link>
   );
 }
 
