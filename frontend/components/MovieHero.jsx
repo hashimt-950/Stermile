@@ -29,11 +29,11 @@ function Moviehero() {
   return (
     <>
       <div>
-        <MovieOverview nowPlaying={nowPlaying} />
+        <MovieOverview data={nowPlaying} />
       </div>
 
       <div>
-        <MovieMeta nowPlaying={nowPlaying} />
+        <MovieMeta data={nowPlaying} />
       </div>
     </>
   );

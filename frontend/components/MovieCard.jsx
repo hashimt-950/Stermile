@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 function MovieCard() {
   const [discover, setDiscover] = useState([]);
@@ -22,18 +23,20 @@ function MovieCard() {
   return (
     <>
       {discover.map((movie) => (
-        <div key={movie.id}>
-          <div>
-            <img
-              src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-              alt=""
-            />
-          </div>
+        <Link to={`/movie/${movie.id}`}>
+          <div key={movie.id}>
+            <div>
+              <img
+                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                alt=""
+              />
+            </div>
 
-          <div>
-            <h6>{movie.title}</h6>
+            <div>
+              <h6>{movie.title}</h6>
+            </div>
           </div>
-        </div>
+        </Link>
       ))}
     </>
   );

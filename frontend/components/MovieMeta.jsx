@@ -1,5 +1,5 @@
-function MovieMeta({ nowPlaying }) {
-  const singleMovie = nowPlaying[Math.floor(Math.random() * 11)];
+function MovieMeta({ data }) {
+  const singleMovie = data[Math.floor(Math.random() * 11)];
   return (
     <div>
       <h6>score:singleMovie?.vote_average</h6>

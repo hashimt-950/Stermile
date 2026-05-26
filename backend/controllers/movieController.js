@@ -68,4 +68,28 @@ const discover = async (req, res) => {
   }
 };
 
-module.exports = { nowPlaying, topRated, discover };
+const movieById = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const response = await fetch(
+      `https://api.themoviedb.org/3/movie/${id}?language=en-US`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
+        },
+      },
+      ``,
+    );
+
+    const data = await response.json();
+    res.json(data);
+    console.log(data);
+  } catch (error) {
+    console.log("failed to fetch movie by id: ", error.message);
+    res.status(500).json({
+      error: error.message,
+    });
+  }
+};
+
+module.exports = { nowPlaying, topRated, discover, movieById };
