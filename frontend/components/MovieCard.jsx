@@ -1,15 +1,27 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function MovieCard() {
   const [discover, setDiscover] = useState([]);
+  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getDiscover = async () => {
       try {
         const response = await fetch(
           "http://localhost:3000/api/movies/discover",
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+            },
+          },
         );
+
+        if (response.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/login");
+        }
 
         const data = await response.json();
         setDiscover(data);

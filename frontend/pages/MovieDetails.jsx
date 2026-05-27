@@ -1,10 +1,12 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import MovieMeta from "../components/MovieMeta";
 import { useEffect, useState } from "react";
 
 function MovieDetails() {
   const { id } = useParams();
   const [movieDetail, setMovieDetail] = useState([]);
+  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getMovieById = async () => {
@@ -12,7 +14,16 @@ function MovieDetails() {
       } catch (error) {
         console.log("error while fetching movie details: ", error.message);
       }
-      const response = await fetch(`http://localhost:3000/api/movies/${id}`);
+      const response = await fetch(`http://localhost:3000/api/movies/${id}`, {
+        headers: {
+          Authorization: `bearer ${token}`,
+        },
+      });
+
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/login");
+      }
 
       const data = await response.json();
       console.log(data);
