@@ -1,0 +1,5 @@
+function Watchlist() {
+  return <h1>My List</h1>;
+}
+
+export default Watchlist;
