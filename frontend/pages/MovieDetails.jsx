@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import MovieMeta from "../components/MovieMeta";
 import { useEffect, useState } from "react";
+import AddToListBtn from "../components/AddToListBtn";
 
 function MovieDetails() {
   const { id } = useParams();
@@ -53,7 +54,7 @@ function MovieDetails() {
         <h6>Total votes: {movieDetail?.vote_count}</h6>
         <h6>Date: {movieDetail?.release_date}</h6>
         <h6>Runtime: {movieDetail?.runtime}</h6>
-        <button>Add to List </button>
+        <AddToListBtn movieData={movieDetail} />
       </div>
     </>
   );

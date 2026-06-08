@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import AddToListBtn from "./AddToListBtn.jsx";
 
 function MovieCard() {
   const [discover, setDiscover] = useState([]);
@@ -35,20 +36,24 @@ function MovieCard() {
   return (
     <>
       {discover.map((movie) => (
-        <Link to={`/movie/${movie.id}`}>
-          <div key={movie.id}>
-            <div>
-              <img
-                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                alt=""
-              />
-            </div>
+        <>
+          <Link to={`/movie/${movie.id}`}>
+            <div key={movie.id}>
+              <div>
+                <img
+                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                  alt=""
+                />
+              </div>
 
-            <div>
-              <h6>{movie.title}</h6>
+              <div>
+                <h6>{movie.title}</h6>
+              </div>
             </div>
-          </div>
-        </Link>
+          </Link>
+
+          <AddToListBtn movieData={movie} />
+        </>
       ))}
     </>
   );

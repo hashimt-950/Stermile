@@ -2,14 +2,14 @@ const Watchlist = require("../models/Watchlist.model.js");
 
 const addToWatchlist = async (req, res) => {
   try {
-    // if (!req.user) {
-    //   return res.status(401).json({
-    //     message: "unautorized",
-    //   });
-    // }
+    if (!req.user) {
+      return res.status(401).json({
+        message: "unauthorized",
+      });
+    }
 
     const existingMovie = await Watchlist.findOne({
-      //   user: req.user.id,
+      user: req.user.id,
       movieId: req.body.movieId,
     });
 
@@ -26,7 +26,7 @@ const addToWatchlist = async (req, res) => {
     }
 
     const watchlist = new Watchlist({
-      //   user: req.user.id,
+      user: req.user.id,
       movieId: req.body.movieId,
       title: req.body.title,
       overview: req.body.overview,
@@ -49,4 +49,22 @@ const addToWatchlist = async (req, res) => {
   }
 };
 
-module.exports = { addToWatchlist };
+const getWatchlist = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        message: "unauthorized",
+      });
+    }
+    const userWatchlist = await Watchlist.find({ user: req.user.id });
+
+    res.status(200).json(userWatchlist);
+  } catch (error) {
+    console.log("error while fetching watchlist: ", error.message);
+    res.status(500).json({
+      error: error.message,
+    });
+  }
+};
+
+module.exports = { addToWatchlist, getWatchlist };

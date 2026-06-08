@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 function MovieTiles() {
   const [topRated, setTopRated] = useState([]);
   const token = localStorage.getItem("token");
-  const navigate = useNavigate;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getTopRated = async () => {

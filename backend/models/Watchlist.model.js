@@ -2,11 +2,11 @@ const mongoose = require("mongoose");
 
 const watchlistSchema = new mongoose.Schema(
   {
-    // user: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "Users",
-    //   required: true,
-    // },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Users",
+      required: true,
+    },
     movieId: {
       type: String,
       required: true,
