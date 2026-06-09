@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import MovieCard from "./MovieCard";
 
-function Discover() {
+function Discover({ watchlist, setWatchlist }) {
   return (
     <div>
-      <MovieCard />
+      <MovieCard watchlist={watchlist} setWatchlist={setWatchlist} />
     </div>
   );
 }

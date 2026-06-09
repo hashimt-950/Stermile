@@ -67,4 +67,34 @@ const getWatchlist = async (req, res) => {
   }
 };
 
-module.exports = { addToWatchlist, getWatchlist };
+const removeFromList = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        message: "unauthorized",
+      });
+    }
+
+    const deleteMovie = await Watchlist.findOneAndDelete({
+      user: req.user.id,
+      movieId: req.body.movieId,
+    });
+
+    if (!deleteMovie) {
+      return res.status(404).json({
+        message: "movie not found in the list ",
+      });
+    }
+
+    res.status(200).json({
+      message: "movie successfully removed from the watchlist ",
+    });
+  } catch (error) {
+    console.log("error while fetching watchlist: ", error.message);
+    res.status(500).json({
+      error: error.message,
+    });
+  }
+};
+
+module.exports = { addToWatchlist, getWatchlist, removeFromList };

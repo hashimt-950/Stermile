@@ -6,10 +6,25 @@ import AddToListBtn from "../components/AddToListBtn";
 function MovieDetails() {
   const { id } = useParams();
   const [movieDetail, setMovieDetail] = useState([]);
+  const [watchlist, setWatchlist] = useState([]);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
   useEffect(() => {
+    const getWatchlist = async () => {
+      const response = await fetch(
+        "http://localhost:3000/api/watchlist/watchlist",
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+          },
+        },
+      );
+
+      const data = await response.json();
+      setWatchlist(data);
+    };
+
     const getMovieById = async () => {
       try {
       } catch (error) {
@@ -32,6 +47,7 @@ function MovieDetails() {
     };
 
     getMovieById();
+    getWatchlist();
   }, []);
 
   return (
@@ -54,7 +70,11 @@ function MovieDetails() {
         <h6>Total votes: {movieDetail?.vote_count}</h6>
         <h6>Date: {movieDetail?.release_date}</h6>
         <h6>Runtime: {movieDetail?.runtime}</h6>
-        <AddToListBtn movieData={movieDetail} />
+        <AddToListBtn
+          movieData={movieDetail}
+          watchlist={watchlist}
+          setWatchlist={setWatchlist}
+        />
       </div>
     </>
   );

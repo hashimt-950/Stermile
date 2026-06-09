@@ -5,5 +5,6 @@ const router = express.Router();
 
 router.post("/watchlist", protectRoute, watchlist.addToWatchlist);
 router.get("/watchlist", protectRoute, watchlist.getWatchlist);
+router.delete("/watchlist", protectRoute, watchlist.removeFromList);
 
 module.exports = router;

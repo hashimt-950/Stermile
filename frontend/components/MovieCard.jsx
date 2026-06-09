@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AddToListBtn from "./AddToListBtn.jsx";
 
-function MovieCard() {
+function MovieCard({ watchlist, setWatchlist }) {
   const [discover, setDiscover] = useState([]);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
@@ -52,7 +52,11 @@ function MovieCard() {
             </div>
           </Link>
 
-          <AddToListBtn movieData={movie} />
+          <AddToListBtn
+            movieData={movie}
+            watchlist={watchlist}
+            setWatchlist={setWatchlist}
+          />
         </>
       ))}
     </>
