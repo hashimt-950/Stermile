@@ -61,7 +61,7 @@ function Moviehero({ watchlist, setWatchlist }) {
           <h1 className="hero-title a2">{movie.title}</h1>
           <p className="hero-desc a3">{movie.overview}</p>
         </div>
-        <div className="a4">
+        <div className="a4 hero-bottom">
           <div className="hero-meta">
             <div className="meta-blk">
               <div className="meta-lbl">Score</div>

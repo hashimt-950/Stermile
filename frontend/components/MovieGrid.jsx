@@ -10,7 +10,7 @@ function MovieGrid() {
     const getMovies = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3000/api/movies/nowplaying",
+          "http://localhost:3000/api/movies/topRated",
           {
             headers: {
               Authorization: `bearer ${token}`,
@@ -25,7 +25,9 @@ function MovieGrid() {
         }
 
         const data = await response.json();
-        setMovies((data.results || []).slice(0, 3));
+        const results = data.results || [];
+        const shuffled = [...results].sort(() => Math.random() - 0.5);
+        setMovies(shuffled.slice(0, 3));
       } catch (error) {
         console.log("error fetching movies for grid: ", error.message);
       }
