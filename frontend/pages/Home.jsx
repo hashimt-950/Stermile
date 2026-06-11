@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Discover from "../components/Discover";
 import MovieGrid from "../components/MovieGrid";
 import Moviehero from "../components/MovieHero";
+import Ticker from "../components/Ticker";
 
 function Home() {
   const token = localStorage.getItem("token");
@@ -24,6 +25,7 @@ function Home() {
   }, []);
   return (
     <>
+      <Ticker />
       <div className="hero-section">
         <Moviehero watchlist={watchlist} setWatchlist={setWatchlist} />
         <MovieGrid />

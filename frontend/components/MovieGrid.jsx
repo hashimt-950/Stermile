@@ -10,7 +10,7 @@ function MovieGrid() {
     const getMovies = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3000/api/movies/topRated",
+          "http://localhost:3000/api/movies/byGenre/878",
           {
             headers: {
               Authorization: `bearer ${token}`,

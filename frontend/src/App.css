@@ -2,6 +2,7 @@
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.25}}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
 .a1{animation:fadeUp 0.6s var(--ease) 0.05s both}
 .a2{animation:fadeUp 0.6s var(--ease) 0.15s both}
@@ -55,12 +56,19 @@
   font-size:12px;font-weight:500;color:#111;cursor:pointer;
 }
 
+/* ── TICKER ── */
+.ticker{border-bottom:1px solid rgba(240,232,216,0.12);padding:9px 0;overflow:hidden;white-space:nowrap;background:var(--bg2);}
+.ticker-track{display:inline-flex;animation:ticker 40s linear infinite;}
+.ticker-item{display:inline-flex;align-items:center;gap:10px;padding:0 26px;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink3);}
+.ticker-sep{width:3px;height:3px;border-radius:50%;background:var(--ink4);}
+.ticker-hi{color:var(--amber2);opacity:0.75;}
+
 /* ── HERO SECTION ── */
 .hero-section{
   display:grid;
   grid-template-columns:1fr 1fr;
   min-height:86vh;
-  border-bottom:1px solid var(--rule);
+  border-bottom:1px solid rgba(240,232,216,0.12);
 }
 
 /* ── MOVIE HERO ── */
@@ -68,7 +76,7 @@
   padding:52px 44px;
   display:flex;flex-direction:column;
   justify-content:space-between;
-  border-right:1px solid var(--rule);
+  border-right:1px solid rgba(240,232,216,0.12);
   position:relative;
   overflow:hidden;
 }
@@ -88,10 +96,18 @@
 .movie-hero-content{
   position:relative;z-index:1;
   display:flex;flex-direction:column;
-  height:100%;
+  flex:1;
+}
+.hero-top{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+.hero-title-group{
+  margin-top:auto;
 }
 .eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
-.eyebrow-line{width:22px;height:1px;background:var(--rule);}
+.eyebrow-line{width:22px;height:1px;background:rgba(240,232,216,0.12);}
 .eyebrow-txt{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink3);}
 .now-badge{
   display:inline-flex;align-items:center;gap:7px;
@@ -103,32 +119,32 @@
 .badge-pulse{width:5px;height:5px;border-radius:50%;background:var(--amber2);animation:pulse 2s ease infinite;}
 .hero-title{
   font-family:var(--serif);font-size:clamp(40px,5vw,70px);
-  line-height:1.0;color:var(--ink);margin-bottom:18px;font-weight:500;
+  line-height:1.05;color:var(--ink);margin-bottom:18px;font-weight:500;
+  letter-spacing:-0.01em;max-width:460px;
 }
-.hero-title em{font-style:italic;color:var(--ink3);font-weight:400;}
+.hero-title em{font-style:italic;color:var(--ink2);font-weight:400;}
 .hero-desc{
-  font-size:14px;line-height:1.8;color:var(--ink2);
-  max-width:340px;margin-bottom:26px;
+  font-size:15px;line-height:1.8;color:var(--ink2);
+  max-width:420px;margin-bottom:26px;
 }
-.hero-meta{display:flex;gap:0;border-top:1px solid var(--rule);padding-top:22px;margin-bottom:20px;}
+.hero-meta{display:flex;gap:0;border-top:1px solid rgba(240,232,216,0.12);padding-top:22px;margin-bottom:20px;}
 .meta-blk{flex:1;}
-.meta-blk+.meta-blk{border-left:1px solid var(--rule);padding-left:18px;}
-.meta-lbl{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink3);margin-bottom:4px;}
-.meta-val{font-size:13px;color:var(--ink2);}
+.meta-blk+.meta-blk{border-left:1px solid rgba(240,232,216,0.12);padding-left:18px;}
+.meta-lbl{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink3);margin-bottom:4px;}
+.meta-val{font-size:14px;color:var(--ink2);}
 .meta-score{font-family:var(--serif);font-size:28px;color:var(--amber2);line-height:1;font-weight:500;}
 .meta-score-sub{font-size:12px;color:var(--ink3);font-family:var(--sans);font-weight:300;}
 .cta-row{display:flex;gap:10px;}
-.hero-bottom{margin-top:auto;}
 
 /* ── ADD TO LIST BUTTON ── */
 .btn-add{
   padding:12px 22px;background:transparent;
-  border:1px solid var(--rule);border-radius:3px;cursor:pointer;
+  border:1px solid rgba(240,232,216,0.18);border-radius:3px;cursor:pointer;
   color:var(--ink3);font-size:11px;letter-spacing:0.12em;
   text-transform:uppercase;transition:all 0.2s;font-family:var(--sans);
   display:inline-flex;align-items:center;gap:6px;
 }
-.btn-add:hover{border-color:rgba(245,166,35,0.35);color:var(--amber2);}
+.btn-add:hover{border-color:rgba(245,166,35,0.45);color:var(--amber2);}
 .btn-add.saved{border-color:var(--amber);color:var(--amber);background:var(--amber-pale);}
 
 /* ── MOVIE GRID / MOSAIC ── */
@@ -173,7 +189,7 @@
 .sec-title em{font-style:italic;color:var(--ink3);font-weight:400;}
 .filter-row{display:flex;gap:6px;flex-wrap:wrap;}
 .f-btn{
-  padding:6px 14px;border-radius:3px;border:1px solid var(--rule);
+  padding:6px 14px;border-radius:3px;border:1px solid rgba(240,232,216,0.12);
   font-size:11px;letter-spacing:0.08em;color:var(--ink3);
   background:transparent;cursor:pointer;transition:all 0.2s;font-family:var(--sans);
 }
@@ -184,7 +200,7 @@
 .d-card:hover .d-overlay{opacity:1;}
 .d-poster{
   aspect-ratio:2/3;border-radius:5px;position:relative;overflow:hidden;
-  margin-bottom:10px;border:1px solid var(--rule);
+  margin-bottom:10px;border:1px solid rgba(240,232,216,0.12);
   transition:transform 0.38s var(--ease),box-shadow 0.38s var(--ease);
   background:var(--bg2);
 }

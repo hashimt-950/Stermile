@@ -92,4 +92,24 @@ const movieById = async (req, res) => {
   }
 };
 
-module.exports = { nowPlaying, topRated, discover, movieById };
+const byGenre = async (req, res) => {
+  const genreId = req.params.genreId;
+  try {
+    const response = await fetch(
+      `https://api.themoviedb.org/3/discover/movie?with_genres=${genreId}&sort_by=vote_average.desc&vote_count.gte=200&language=en-US`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
+        },
+      },
+    );
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.log("error while fetching by genre: ", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { nowPlaying, topRated, discover, movieById, byGenre };

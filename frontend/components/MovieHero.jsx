@@ -49,19 +49,23 @@ function Moviehero({ watchlist, setWatchlist }) {
       />
       <div className="movie-hero-fog" />
       <div className="movie-hero-content">
-        <div>
-          <div className="eyebrow a1">
-            <div className="eyebrow-line" />
-            <span className="eyebrow-txt">Featured tonight</span>
+        <div className="hero-top">
+          <div>
+            <div className="eyebrow a1">
+              <div className="eyebrow-line" />
+              <span className="eyebrow-txt">Featured tonight</span>
+            </div>
+            <div className="now-badge a1">
+              <div className="badge-pulse" />
+              Now Screening
+            </div>
           </div>
-          <div className="now-badge a1">
-            <div className="badge-pulse" />
-            Now Screening
+          <div className="hero-title-group">
+            <h1 className="hero-title a2">{movie.title}</h1>
+            <p className="hero-desc a3">{movie.overview}</p>
           </div>
-          <h1 className="hero-title a2">{movie.title}</h1>
-          <p className="hero-desc a3">{movie.overview}</p>
         </div>
-        <div className="a4 hero-bottom">
+        <div className="a4">
           <div className="hero-meta">
             <div className="meta-blk">
               <div className="meta-lbl">Score</div>
