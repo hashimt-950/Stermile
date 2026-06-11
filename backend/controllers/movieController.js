@@ -1,17 +1,22 @@
 const nowPlaying = async (req, res) => {
+  const pages = [1, 2, 3, 4, 5];
   try {
-    const response = await fetch(
-      "https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1",
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
-        },
-      },
+    const responses = await Promise.all(
+      pages.map((page) =>
+        fetch(
+          `https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
+            },
+          },
+        ),
+      ),
     );
 
-    const data = await response.json();
-    console.log(data);
-    res.json(data);
+    const data = await Promise.all(responses.map((r) => r.json()));
+    const movies = data.flatMap((item) => item.results);
+    res.json({ results: movies });
   } catch (error) {
     console.log("error while fetching movies: ", error.message);
     res.status(500).json({
@@ -94,18 +99,24 @@ const movieById = async (req, res) => {
 
 const byGenre = async (req, res) => {
   const genreId = req.params.genreId;
+  const pages = [1, 2, 3, 4, 5];
   try {
-    const response = await fetch(
-      `https://api.themoviedb.org/3/discover/movie?with_genres=${genreId}&sort_by=vote_average.desc&vote_count.gte=200&language=en-US`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
-        },
-      },
+    const responses = await Promise.all(
+      pages.map((page) =>
+        fetch(
+          `https://api.themoviedb.org/3/discover/movie?with_genres=${genreId}&sort_by=vote_average.desc&vote_count.gte=200&language=en-US&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
+            },
+          },
+        ),
+      ),
     );
 
-    const data = await response.json();
-    res.json(data);
+    const data = await Promise.all(responses.map((r) => r.json()));
+    const movies = data.flatMap((item) => item.results);
+    res.json({ results: movies });
   } catch (error) {
     console.log("error while fetching by genre: ", error.message);
     res.status(500).json({ error: error.message });

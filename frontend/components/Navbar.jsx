@@ -36,12 +36,6 @@ function Navbar() {
       </div>
 
       <div className="profile-container">
-        <button className="icon-btn">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="7" />
-            <path d="m16 16 3.5 3.5" />
-          </svg>
-        </button>
         <div className="avatar" onClick={() => navigate("/profile")}>{userInitial}</div>
       </div>
     </div>
