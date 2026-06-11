@@ -92,9 +92,9 @@ function AddToListBtn({ movieData, watchlist, setWatchlist }) {
   return (
     <div>
       {alreadyInlist ? (
-        <button onClick={removeFromList}>Remove from List</button>
+        <button className="btn-add saved" onClick={removeFromList}>✓ Saved</button>
       ) : (
-        <button onClick={addTolist}>Add to List</button>
+        <button className="btn-add" onClick={addTolist}>+ Add to list</button>
       )}
     </div>
   );
