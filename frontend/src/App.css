@@ -210,16 +210,17 @@
 }
 .d-fog{position:absolute;bottom:0;left:0;right:0;height:40%;background:linear-gradient(to top,rgba(11,10,8,0.6),transparent);pointer-events:none;z-index:1;}
 .d-overlay{
-  position:absolute;inset:0;background:rgba(11,10,8,0.58);
+  position:absolute;inset:0;background:rgba(11,10,8,0.7);
   opacity:0;transition:opacity 0.3s;display:flex;
   align-items:center;justify-content:center;z-index:2;
 }
 .d-play{
   width:40px;height:40px;border-radius:50%;
-  border:1px solid rgba(240,232,216,0.6);
+  border:1px solid rgba(240,232,216,0.8);
   display:flex;align-items:center;justify-content:center;
   transition:border-color 0.2s,background 0.2s;
 }
+.d-play:hover{border-color:var(--amber);background:var(--amber-pale);}
 .d-saved-tag{
   position:absolute;top:8px;left:8px;
   background:linear-gradient(135deg,var(--amber),var(--amber-deep));

@@ -167,12 +167,23 @@ function Discover({ watchlist, setWatchlist }) {
                   }}
                 >
                   <svg
-                    width="12"
-                    height="12"
+                    width="14"
+                    height="14"
                     viewBox="0 0 24 24"
-                    fill={inWatchlist(movie.id) ? "var(--amber)" : "rgba(240,232,216,0.9)"}
+                    fill="none"
+                    stroke={inWatchlist(movie.id) ? "var(--amber)" : "rgba(240,232,216,0.9)"}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   >
-                    <path d="M8 5v14l11-7z" />
+                    {inWatchlist(movie.id) ? (
+                      <path d="M5 13l4 4L19 7" />
+                    ) : (
+                      <>
+                        <path d="M12 5v14" />
+                        <path d="M5 12h14" />
+                      </>
+                    )}
                   </svg>
                 </div>
               </div>
