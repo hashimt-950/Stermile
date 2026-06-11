@@ -3,6 +3,7 @@ import "./App.css";
 import Home from "../pages/Home";
 import Signup from "../pages/Signup";
 import Login from "../pages/Login";
+import Profile from "../pages/Profile";
 import ProtectedRoute from "../components/ProtectedRoute";
 import MovieDetails from "../pages/MovieDetails";
 import Layout from "../components/Layout";
@@ -24,6 +25,7 @@ function App() {
 
             <Route path="/movie/:id" element={<MovieDetails />} />
             <Route path="/watchlist" element={<Watchlist />} />
+            <Route path="/profile" element={<Profile />} />
           </Route>
 
           <Route path="/signup" element={<Signup />} />

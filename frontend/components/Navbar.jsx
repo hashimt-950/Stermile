@@ -5,6 +5,11 @@ function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const token = localStorage.getItem("token");
+  const userInitial = token
+    ? JSON.parse(atob(token.split(".")[1]))?.email?.charAt(0).toUpperCase() || "U"
+    : "U";
+
   const navItems = [
     { label: "Discover", path: "/" },
     { label: "My List", path: "/watchlist" },
@@ -37,7 +42,7 @@ function Navbar() {
             <path d="m16 16 3.5 3.5" />
           </svg>
         </button>
-        <div className="avatar">E</div>
+        <div className="avatar" onClick={() => navigate("/profile")}>{userInitial}</div>
       </div>
     </div>
   );
