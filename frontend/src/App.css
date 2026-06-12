@@ -248,6 +248,14 @@
 .mosaic-title{font-family:var(--serif);font-size:14px;color:rgba(240,232,216,0.88);line-height:1.2;}
 .mosaic-year{font-size:10px;color:rgba(240,232,216,0.4);margin-top:2px;}
 
+/* ── SEARCH BAR ── */
+.search-bar{display:flex;align-items:center;border-bottom:1px solid var(--rule);background:var(--bg2);}
+.search-lbl{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink2);white-space:nowrap;padding:0 26px 0 44px;border-right:1px solid var(--rule);height:56px;display:flex;align-items:center;}
+.search-input{flex:1;border:none;background:transparent;padding:0 22px;height:56px;font-family:var(--serif);font-size:18px;font-style:italic;color:var(--ink);outline:none;caret-color:var(--amber2);}
+.search-input::placeholder{color:var(--ink3);}
+.search-go{padding:0 26px 0 18px;border-left:1px solid var(--rule);height:56px;display:flex;align-items:center;cursor:pointer;color:var(--ink2);transition:color 0.2s;}
+.search-go:hover{color:var(--amber2);}
+
 /* ── DISCOVER SECTION ── */
 .section{padding:42px 44px;}
 .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}

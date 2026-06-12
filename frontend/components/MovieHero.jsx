@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AddToListBtn from "./AddToListBtn";
 
 function Moviehero({ watchlist, setWatchlist }) {
-  const [nowPlaying, setNowPlaying] = useState([]);
+  const [movie, setMovie] = useState(null);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -26,7 +26,9 @@ function Moviehero({ watchlist, setWatchlist }) {
         }
 
         const data = await response.json();
-        setNowPlaying(data.results || []);
+        const results = data.results || [];
+        const picked = results[Math.floor(Math.random() * results.length)];
+        setMovie(picked);
       } catch (error) {
         console.log("error fetching now-playing: ", error.message);
       }
@@ -34,8 +36,6 @@ function Moviehero({ watchlist, setWatchlist }) {
 
     getNowPlaying();
   }, []);
-
-  const movie = nowPlaying[Math.floor(Math.random() * Math.max(nowPlaying.length, 1))];
 
   if (!movie) return null;
 

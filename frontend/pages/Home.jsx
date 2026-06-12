@@ -7,6 +7,8 @@ import Ticker from "../components/Ticker";
 function Home() {
   const token = localStorage.getItem("token");
   const [watchlist, setWatchlist] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
   useEffect(() => {
     const getWatchlist = async () => {
       const response = await fetch(
@@ -23,6 +25,7 @@ function Home() {
     };
     getWatchlist();
   }, []);
+
   return (
     <>
       <Ticker />
@@ -30,7 +33,16 @@ function Home() {
         <Moviehero watchlist={watchlist} setWatchlist={setWatchlist} />
         <MovieGrid />
       </div>
-      <Discover watchlist={watchlist} setWatchlist={setWatchlist} />
+      <div className="search-bar">
+        <div className="search-lbl">Search</div>
+        <input className="search-input" placeholder="a title, a director, a feeling…" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+        <div className="search-go">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </div>
+      </div>
+      <Discover watchlist={watchlist} setWatchlist={setWatchlist} searchQuery={searchQuery} />
     </>
   );
 }

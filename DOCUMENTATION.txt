@@ -1,0 +1,660 @@
+================================================================================
+  STERMILE — Full-Stack Movie Discovery & Watchlist Application
+  Complete Project Documentation
+================================================================================
+
+TABLE OF CONTENTS
+  1. Project Overview
+  2. Project Structure
+  3. Backend Architecture
+     3.1 Entry Point (backend/index.js)
+     3.2 Database Connection (backend/config/db.js)
+     3.3 Models
+     3.4 Controllers
+     3.5 Routes
+     3.6 Middleware
+  4. Frontend Architecture
+     4.1 Entry Point (frontend/src/main.jsx)
+     4.2 App Root (frontend/src/App.jsx)
+     4.3 Design System (index.css & App.css)
+     4.4 Components
+     4.5 Pages
+     4.6 Global State Flow (Watchlist)
+  5. Authentication Flow
+  6. API Endpoints
+  7. How Pages & Components Connect
+
+
+================================================================================
+1. PROJECT OVERVIEW
+================================================================================
+
+Stermile is a single-page application for discovering movies (powered by TMDB
+— The Movie Database) and saving them to a personal watchlist.
+
+  - Frontend:  React 19 + Vite 8 + react-router-dom
+  - Backend:   Express 5 + MongoDB (Mongoose) + JWT authentication
+  - Design:    Dark amber-themed UI, Playfair Display (serif headings)
+               and Outfit (sans body) fonts, all styles in App.css
+
+The backend acts as a proxy to the TMDB API so that the TMDB token is never
+exposed to the browser. All movie data flows:  TMDB → Backend → Frontend.
+
+
+================================================================================
+2. PROJECT STRUCTURE
+================================================================================
+
+Stermile/
+├── DOCUMENTATION.txt          ← (this file)
+├── backend/
+│   ├── index.js               Server entry — mounts routes, starts Express
+│   ├── package.json
+│   ├── .env                   Environment variables (MongoDB URI, JWT secret,
+│   │                          TMDB token)
+│   ├── config/
+│   │   └── db.js              Mongoose connection to MongoDB Atlas
+│   ├── controllers/
+│   │   ├── authControllers.js   signUp(), logIn()
+│   │   ├── movieController.js   nowPlaying(), topRated(), discover(),
+│   │   │                        movieById(), byGenre()
+│   │   └── watchlistControllers.js  addToWatchlist(), getWatchlist(),
+│   │                                removeFromList()
+│   ├── middlewares/
+│   │   └── protectRoute.js    JWT verification middleware
+│   ├── models/
+│   │   ├── Users.model.js     User schema (name, email, hashed password)
+│   │   └── Watchlist.model.js Watchlist schema (user ref + movie fields)
+│   └── routes/
+│       ├── authRoutes.js      POST /signup, POST /login
+│       ├── movieRoutes.js     GET /nowplaying, /topRated, /discover,
+│       │                      /byGenre/:genreId, /:id
+│       └── watchlistRoutes.js POST /watchlist, GET /watchlist,
+│                              DELETE /watchlist
+│
+├── design/
+│   └── Stermile.jsx           Full design mockup component (reference only)
+│
+└── frontend/
+    ├── index.html             Vite HTML shell
+    ├── package.json
+    ├── vite.config.js
+    ├── src/
+    │   ├── main.jsx           React DOM root + index.css import
+    │   ├── App.jsx            BrowserRouter, Routes, Layout wrapper
+    │   ├── App.css            All component styles (single file)
+    │   └── index.css          Font imports, CSS variables, base reset
+    ├── components/
+    │   ├── Navbar.jsx         Top navbar: logo, nav links, avatar
+    │   ├── Ticker.jsx         Continuous scrolling movie title bar
+    │   ├── MovieHero.jsx      Hero left panel — random movie from nowPlaying
+    │   ├── MovieGrid.jsx      Hero right panel — 3-film sci-fi mosaic
+    │   ├── Discover.jsx       5-column discover grid with genre filters
+    │   ├── AddToListBtn.jsx   Reusable add/remove watchlist button
+    │   ├── Layout.jsx         Shared layout: Navbar + Footer wrapper
+    │   ├── ProtectedRoute.jsx Redirects to /login if no token
+    │   ├── MovieCard.jsx      (unused helper)
+    │   ├── MovieMeta.jsx      (unused helper)
+    │   ├── MovieOverview.jsx  (unused helper)
+    │   └── MovieTiles.jsx     (unused helper)
+    └── pages/
+        ├── Home.jsx           Assembles Ticker + Hero Section + Discover
+        ├── MovieDetails.jsx   Full movie detail page
+        ├── Watchlist.jsx      Saved movies grid
+        ├── Login.jsx          Sign-in form
+        ├── Signup.jsx         Registration form
+        └── Profile.jsx        User profile & logout
+
+
+================================================================================
+3. BACKEND ARCHITECTURE
+================================================================================
+
+3.1  Entry Point  —  backend/index.js
+───────────────────────────────────────
+
+  require("dotenv").config()          // Load .env variables
+  const express = require("express")
+  app.use(cors())                     // Allow cross-origin from frontend
+  app.use(express.json())             // Parse JSON request bodies
+  app.use("/api/auth",     authRouter)
+  app.use("/api/movies",   movieRouter)
+  app.use("/api/watchlist", watchlistRouter)
+  connectDB()                         // Connect to MongoDB
+  app.listen(3000)
+
+The server listens on port 3000 and CORS allows any origin so the Vite dev
+server (port 5173) can talk to it.
+
+
+3.2  Database Connection  —  backend/config/db.js
+─────────────────────────────────────────────────────
+
+  mongoose.connect(process.env.MONGODB_URI, { family: 4 })
+
+Connects to a MongoDB Atlas cluster. The { family: 4 } forces IPv4 because
+some environments have IPv6 issues with Atlas.
+
+
+3.3  Models
+─────────────────
+
+User Model  (backend/models/Users.model.js):
+  - Fields: name (String, required), email (String, required, unique),
+            password (String, required)
+  - Pre-save hook: password is bcrypt-hashed with salt rounds 10
+    BEFORE being stored. The plain text password is never saved.
+
+Watchlist Model  (backend/models/Watchlist.model.js):
+  - Fields: user (ObjectId → User), movieId (String, required, unique),
+            title, overview, poster_path, backdrop_path, release_date,
+            vote_average, vote_count
+  - Each movie entry belongs to exactly one user. The { unique: true } on
+    movieId prevents the same TMDB movie from being inserted twice by the
+    same user (though the unique constraint is global — enforced by the
+    controller check anyway).
+
+
+3.4  Controllers
+───────────────────
+
+Auth Controller  (backend/controllers/authControllers.js)
+
+  signUp():
+    1. Check if a user with req.body.email already exists.
+       If yes → 400 "user already exists".
+    2. Create a new User document (password gets hashed via pre-save hook).
+    3. Return { name, email }.
+
+  logIn():
+    1. Find user by email. If not found → 400 "user doesnot exists".
+    2. Compare req.body.password with stored hash using bcrypt.compare().
+       If mismatch → 400 "incorrect password".
+    3. Sign a JWT containing { id, email } with process.env.JWT_SECRET,
+       expiring in 3 hours.
+    4. Return { message: "login successfull", token }.
+
+Watchlist Controller  (backend/controllers/watchlistControllers.js)
+
+  addToWatchlist():
+    1. Verify req.user exists (set by protectRoute middleware).
+    2. Check for duplicate movieId → 400 if already saved.
+    3. Create a new Watchlist document with all movie fields.
+    4. Return { message: "saved movie to watchlist" }.
+
+  getWatchlist():
+    1. Find all Watchlist docs where user === req.user.id.
+    2. Return the array.
+
+  removeFromList():
+    1. Find and delete the Watchlist doc matching user + movieId.
+    2. If nothing deleted → 404 "movie not found".
+    3. Return success message.
+
+Movie Controller  (backend/controllers/movieController.js)
+
+  All movie controllers proxy requests to TMDB API v3, using the
+  Authorization: Bearer token from environment. None of them expose the
+  TMDB token to the frontend.
+
+  nowPlaying():
+    - Fetches pages 1-5 of TMDB's /movie/now_playing endpoint in parallel
+      using Promise.all(). Then flatMap merges all results into a single
+      array and wraps them in { results: [...] } to match TMDB's shape.
+    - Returns ~100 movies instead of the default 20, giving the frontend
+      a large pool to pick from randomly.
+
+  topRated():
+    - Fetches page 1 of TMDB's /movie/top_rated.
+    - Used by the Ticker component.
+
+  discover():
+    - Fetches pages 1-5 of TMDB's /discover/movie (no genre filter).
+    - Flattens all pages into one array and returns it directly (not as
+      { results } — the frontend expects a flat array here).
+
+  movieById():
+    - Fetches a single movie by its TMDB id from /movie/:id.
+    - Returns the full TMDB movie object (used by MovieDetails page).
+
+  byGenre():
+    - Fetches pages 1-5 of /discover/movie with with_genres={genreId},
+      sorted by vote_average.desc, minimum 200 votes.
+    - Returns { results: [...] }.
+    - Used by MovieGrid (genreId=878 for Sci-Fi) for the hero mosaic.
+
+  searchMovies():
+    - Reads ?query= from req.query, calls TMDB's /search/movie endpoint.
+    - Returns the results array directly (not wrapped in { results }).
+    - Called from Discover.jsx when the user types in the search bar.
+
+
+3.5  Routes
+────────────────
+
+authRoutes.js:
+  POST /signup   → auth.signUp
+  POST /login    → auth.logIn
+
+movieRoutes.js: (all protected by protectRoute middleware)
+  GET  /nowplaying      → movies.nowPlaying
+  GET  /topRated        → movies.topRated
+  GET  /discover        → movies.discover
+  GET  /byGenre/:genreId → movies.byGenre
+  GET  /search          → movies.searchMovies
+  GET  /:id             → movies.movieById
+
+watchlistRoutes.js:  (all protected)
+  POST   /watchlist   → watchlist.addToWatchlist
+  GET    /watchlist   → watchlist.getWatchlist
+  DELETE /watchlist   → watchlist.removeFromList
+
+
+3.6  Middleware  —  backend/middlewares/protectRoute.js
+─────────────────────────────────────────────────────────
+
+  1. Read the Authorization header.
+  2. If missing → 401 "not token found".
+  3. Extract the token (format: "bearer <token>").
+  4. Verify the token with jwt.verify using the JWT_SECRET.
+  5. If invalid/expired → 401 "Invalid or expired token".
+  6. If valid → attach decoded payload { id, email } to req.user, then
+     call next().
+
+This middleware runs on every movie and watchlist route, ensuring only
+authenticated users can access them.
+
+
+================================================================================
+4. FRONTEND ARCHITECTURE
+================================================================================
+
+4.1  Entry Point  —  frontend/src/main.jsx
+────────────────────────────────────────────
+
+  createRoot(document.getElementById("root")).render(
+    <StrictMode>
+      <App />
+    </StrictMode>
+  );
+
+The import of "./index.css" is crucial — Vite must see CSS imports in JS
+files for HMR and bundling. If missing, the page loads with zero styling.
+
+
+4.2  App Root  —  frontend/src/App.jsx
+────────────────────────────────────────
+
+  import { BrowserRouter, Routes, Route } from "react-router-dom"
+
+  Routes:
+    Protected wrapper (checks auth → renders <Layout />):
+      /           → Home
+      /movie/:id  → MovieDetails
+      /watchlist  → Watchlist
+      /profile    → Profile
+    Public (no auth check):
+      /signup     → Signup
+      /login      → Login
+
+ProtectedRoute wraps <Layout /> which contains Navbar + Footer. All
+protected routes share the same layout. Auth pages (login/signup) render
+standalone without the navbar.
+
+
+4.3  Design System  —  index.css & App.css
+─────────────────────────────────────────────
+
+  index.css  — Global reset, Google Fonts import, CSS custom properties:
+
+    --bg (#0b0a08)          — darkest background
+    --bg2 (#100f0c)         — card/section background
+    --bg3 (#161410)         — input background
+    --ink (#f0e8d8)         — primary text (warm off-white)
+    --ink2 (55% opacity)    — secondary text
+    --ink3 (30% opacity)    — muted text
+    --amber (#f5a623)       — primary amber
+    --amber2 (#ffc85a)      — brighter amber highlight
+    --amber-deep (#c47d0e)  — darker amber for gradients
+    --serif                 — Playfair Display
+    --sans                  — Outfit
+    --ease                  — cubic-bezier ease curve
+
+  App.css  — All component styles in one file:
+
+    Animations:  fadeUp, fadeIn, pulse, ticker (for the scrolling bar)
+    Nav:         sticky navbar with backdrop-filter blur, logo dot + text,
+                 nav buttons with underline hover effect, avatar circle
+    Ticker:      overflow-hidden container with infinite linear animation
+    Hero:        two-column grid (1fr 1fr), left panel has background
+                 image with gradient fog overlay
+    Detail:      backdrop hero with radial fog, sticky poster column
+    Search Bar:  horizontal bar between hero and discover, "Search" label
+                 on left, italic serif input, arrow icon on right
+    Discover:    5-column grid, filter buttons, hover overlay
+    Watchlist:   horizontal scroll on top (designed differently), but
+                 currently matches Discover grid layout
+    Auth:        centered card, dark inputs, amber gradient button
+    Profile:     centered card, stats row, logout button
+    Toast:       fixed bottom-right popup for errors
+
+
+4.4  Components
+───────────────────
+
+Navbar.jsx
+─────────────────────
+  - Reads JWT token from localStorage.
+  - Decodes the token client-side using atob(token.split(".")[1]) to
+    extract the user's email, then takes the first character as the
+    avatar letter.
+  - Nav buttons: "Discover" → /, "My List" → /watchlist,
+    "Friends" → null (disabled).
+  - Active nav link gets the .active class which underlines it.
+  - Avatar div onClick navigates to /profile.
+
+Ticker.jsx
+─────────────────────
+  - Fetches topRated movies (page 1), picks 14 random titles, doubles
+    the array for seamless looping.
+  - CSS animation: @keyframes ticker slides the track from 0 to -50%
+    over 40 seconds (50% because the duplicated content creates the seam).
+  - Every 4th item gets .ticker-hi (amber highlight).
+
+MovieHero.jsx
+─────────────────────
+  - Fetches nowPlaying (5 pages = ~100 movies).
+  - Picks one random movie using Math.random() on every render.
+  - Background: poster_path at w1280 as CSS background-image with
+    12% default opacity + gradient fog overlay.
+  - Displays: "Featured tonight" eyebrow, "Now Screening" badge with
+    animated pulse dot, title, overview, 3 meta blocks (score, votes,
+    release date), AddToListBtn.
+  - Uses staggered animation classes (a1, a2, a3, a4) for fade-up
+    sequencing.
+
+MovieGrid.jsx
+─────────────────────
+  - Fetches sci-fi genre (genreId=878) via byGenre endpoint.
+  - Shuffles the result array, takes 3 random movies.
+  - Renders a 2x2 CSS grid mosaic (.tall makes first cell span 2 rows).
+  - Each cell is a <Link to="/movie/:id"> with hover zoom on image
+    and an amber highlight overlay.
+  - Shows rank number, title, and year.
+
+Discover.jsx
+─────────────────────
+  - Receives searchQuery prop from Home.jsx.
+  - useEffect watches searchQuery:
+    - If non-empty → calls GET /api/movies/search?query=... (TMDB search).
+    - If empty → calls GET /api/movies/discover (5 pages).
+  - Filter row: All / Drama (18) / Thriller (53) / Romance (10749) /
+    Sci-Fi (878). Hidden when searchQuery is active.
+  - Heading changes to "Search results" when searching.
+  - Filtering happens client-side by checking if movie.genre_ids includes
+    the selected genre TMDB id.
+  - "No films found for ..." message when search yields no results.
+  - Each card: poster with dark fog, "Saved" tag if in watchlist,
+    hover overlay with a play/check button.
+  - The overlay button's onClick calls toggleWatchlist(movie) and uses
+    e.preventDefault() + e.stopPropagation() to prevent the <Link>
+    from navigating when the button is clicked.
+  - The rest of the card (non-overlay area) navigates to /movie/:id.
+
+AddToListBtn.jsx
+─────────────────────
+  - Reusable component used in MovieHero and MovieDetails.
+  - Checks if movieData.id exists in the watchlist array.
+  - If yes → renders "Saved" with amber styling, onClick removes.
+  - If no → renders "Add to List", onClick adds.
+  - Makes the appropriate DELETE or POST call to /api/watchlist/watchlist.
+  - After a successful POST, it adds the movie to the parent's
+    setWatchlist state (optimistic update).
+
+ProtectedRoute.jsx
+─────────────────────
+  - Checks localStorage for a "token".
+  - If missing → <Navigate to="/login" />.
+  - If present → renders children (the <Layout /> with its nested routes).
+
+Layout.jsx
+─────────────────────
+  - Renders <Navbar />, then <Outlet /> (the nested route content),
+    then <Footer />.
+  - Footer shows "Stermile" logo + current year.
+
+
+4.5  Pages
+───────────────
+
+Home.jsx
+─────────────────────
+  - Manages the watchlist state at the page level with useState (so the
+    same array is shared by MovieHero, Discover, and any other child).
+  - Fetches the user's watchlist on mount via GET /api/watchlist/watchlist.
+  - Manages searchQuery state. The search bar is rendered inline between
+    the hero-section and Discover.
+  - Renders: Ticker → hero-section (MovieHero | MovieGrid) → Search Bar
+    → Discover.
+  - Passes watchlist + setWatchlist + searchQuery as props to children.
+
+MovieDetails.jsx
+─────────────────────
+  - Reads the movie id from URL params.
+  - Fetches movie by id via GET /api/movies/:id.
+  - Hero section: backdrop_path as background (20% opacity + radial fog),
+    "Back to browse" link, title, tagline, genre pills, meta row,
+    AddToListBtn.
+  - Body: two-column grid — sticky poster on left, overview + info grid
+    (production companies, budget, revenue, release date) on right.
+
+Watchlist.jsx
+─────────────────────
+  - Previously had a horizontal scroll design, now uses the same grid
+    layout as Discover (5-column grid).
+  - Header: "Your *Watchlist*" + film count.
+  - Each card: poster, title, year, score, hover overlay with trash icon.
+  - Trash icon onClick removes from watchlist and updates state.
+  - Card body onClick navigates to /movie/:movieId.
+  - Overlay buttons use e.preventDefault() + e.stopPropagation().
+
+Login.jsx
+─────────────────────
+  - Form with email + password inputs.
+  - On submit: POST to /api/auth/login.
+  - If response.ok → save token to localStorage, navigate to /.
+  - If not ok → display the backend's error message in a toast popup
+    (e.g. "user doesnot exists" or "incorrect password").
+  - Toast auto-dismisses after 3 seconds.
+  - Link to /signup at the bottom.
+
+Signup.jsx
+─────────────────────
+  - Form with name + email + password inputs.
+  - On submit: POST to /api/auth/signup.
+  - If response.ok → navigate to /login.
+  - If not ok → display the backend's error message in a toast
+    (e.g. "user already exists").
+  - Link to /login at the bottom.
+
+Profile.jsx
+─────────────────────
+  - Decodes JWT from localStorage to display the user's email.
+  - Fetches watchlist count from the API.
+  - Shows: avatar circle (first letter of email), email, "Member" label,
+    stats row (watchlist count, reviews [—], friends [—]),
+    "My Watchlist" link, and a Logout button.
+  - Logout: removes "token" from localStorage, navigates to /login.
+  - The ProtectedRoute wrapper will prevent accessing this page if
+    already logged out.
+
+
+4.6  Global State Flow (Watchlist)
+─────────────────────────────────────
+
+The watchlist is NOT managed by a global store like Redux or Context.
+Instead, it's lifted state: the Home page holds the watchlist state and
+passes it down as props.
+
+Data flow:
+  1. Home.jsx mounts → fetches GET /api/watchlist/watchlist →
+     sets watchlist state.
+  2. watchlist array is passed to MovieHero and Discover.
+  3. When a user adds/removes a movie in any child component, the
+     child calls setWatchlist to update the state in Home.
+  4. React re-renders all children with the updated watchlist.
+  5. MovieDetails and Watchlist pages fetch independently on mount.
+
+This is simple and works because only a few components need access.
+For larger state, a React Context would be better.
+
+
+================================================================================
+5. AUTHENTICATION FLOW
+================================================================================
+
+SIGNUP:
+  User enters name, email, password.
+  → POST /api/auth/signup
+  → Backend checks for duplicate email, hashes password (bcrypt, 10 rounds),
+    saves user to MongoDB.
+  → On success: redirect to /login.
+  → On error (duplicate): toast "user with this email already exists".
+
+LOGIN:
+  User enters email, password.
+  → POST /api/auth/login
+  → Backend finds user by email, compares password with bcrypt.
+  → On success: returns JWT { id, email } signed with JWT_SECRET, 3h expiry.
+  → Frontend saves token to localStorage, redirects to Home (/).
+  → On error (wrong email): toast "user doesnot exists".
+  → On error (wrong password): toast "incorrect password".
+
+AUTHORIZED REQUESTS:
+  Every movie and watchlist API call includes the header:
+    Authorization: bearer <token>
+  The protectRoute middleware verifies the JWT on every request.
+  If expired → 401 → frontend clears token, redirects to /login.
+
+PERSISTENCE:
+  The token lives in localStorage. On page reload, ProtectedRoute checks
+  for its existence. If present, the user stays logged in. If absent,
+  they are sent to /login.
+
+LOGOUT:
+  Profile page → "Logout" button:
+    localStorage.removeItem("token");
+    navigate("/login");
+
+  This is purely client-side. The token just disappears, and the next
+  ProtectedRoute check sends the user to login.
+
+
+================================================================================
+6. API ENDPOINTS
+================================================================================
+
+METHOD  PATH                           AUTH?   DESCRIPTION
+──────  ────────────────────────────   ─────   ─────────────────────────────────
+POST    /api/auth/signup               No      Register new user
+POST    /api/auth/login                No      Login, returns JWT
+GET     /api/movies/nowplaying         Yes     Get now-playing movies (5 pages)
+GET     /api/movies/topRated           Yes     Get top-rated movies (page 1)
+GET     /api/movies/discover           Yes     Get discover movies (5 pages)
+GET     /api/movies/search?query=      Yes     Search movies by title via TMDB
+GET     /api/movies/byGenre/:genreId   Yes     Get movies by genre (5 pages)
+GET     /api/movies/:id                Yes     Get single movie by TMDB ID
+POST    /api/watchlist/watchlist       Yes     Add movie to watchlist
+GET     /api/watchlist/watchlist       Yes     Get user's watchlist
+DELETE  /api/watchlist/watchlist       Yes     Remove movie from watchlist
+
+
+================================================================================
+7. HOW PAGES & COMPONENTS CONNECT
+================================================================================
+
+USER FLOW (happy path):
+
+  1. User opens app → lands on /login (ProtectedRoute has no token).
+  2. Clicks "Create one" → navigates to /signup.
+  3. Signs up → redirected to /login.
+  4. Logs in → token saved → navigated to Home (/).
+
+HOME PAGE LAYOUT:
+
+  ┌──────────────────────────────────────────────────────────┐
+  │  NAVBAR (sticky)                                         │
+  │  [● Stermile]  [Discover] [My List] [Friends]   [A]     │
+  ├──────────────────────────────────────────────────────────┤
+  │  TICKER (scrolling movie titles)                         │
+  ├────────────────────────────┬─────────────────────────────┤
+  │  MOVIE HERO (left half)    │  MOVIE GRID (right half)    │
+  │  • Random nowPlaying movie │  • 3 random sci-fi movies   │
+  │  • bg image + fog overlay  │  • 2×2 mosaic, tall first   │
+  │  • title, overview, meta   │  • hover zoom + highlight   │
+  │  • Add to List button      │  • click → /movie/:id       │
+  ├──────────────────────────────────────────────────────────┤
+  │  SEARCH BAR                                               │
+  │  [Search]  ┌───────────────────────────────────────┐ [→] │
+  │            └───────────────────────────────────────┘      │
+  ├──────────────────────────────────────────────────────────┤
+  │  DISCOVER / SEARCH RESULTS                                │
+  │  • 5-column grid of popular movies (or search results)    │
+  │  • Genre filter buttons shown only when not searching     │
+  │  • Hover overlay: ➕ add / ✔ saved                        │
+  │  • Click card → /movie/:id                                │
+  ├──────────────────────────────────────────────────────────┤
+  │  FOOTER                                                   │
+  └──────────────────────────────────────────────────────────┘
+
+  → Clicking card body anywhere navigates to the movie detail page.
+  → Clicking the overlay button (+/✓) toggles watchlist without
+    triggering navigation (e.preventDefault + e.stopPropagation).
+
+MOVIE DETAILS PAGE:
+
+  ┌─────────────────────────────────────────────────────────┐
+  │  ← Back to browse                                       │
+  │                                                         │
+  │  MOVIE TITLE (big serif)                                │
+  │  tagline (italic)                                       │
+  │  [Genre] [Genre] [Genre]  (pills)                       │
+  │  Score · Runtime · Year · Votes  (meta row)             │
+  │  [Add to List]                                          │
+  ├──────────────────────────┬──────────────────────────────┤
+  │  POSTER (sticky)          │  OVERVIEW (paragraph)        │
+  │                           │  INFO GRID:                  │
+  │                           │    Production · Budget       │
+  │                           │    Revenue    · Release      │
+  └──────────────────────────┴──────────────────────────────┘
+
+WATCHLIST PAGE:
+
+  ┌─────────────────────────────────────────────────────────┐
+  │  Your *Watchlist*     (film count)                      │
+  ├─────────────────────────────────────────────────────────┤
+  │  5-column grid of saved movies                          │
+  │  • Hover: 🗑️ trash overlay to remove                   │
+  │  • Click card → /movie/:movieId                         │
+  └─────────────────────────────────────────────────────────┘
+
+PROFILE PAGE:
+
+  ┌─────────────────────────────────────────────────────────┐
+  │                   (amber circle with initial)            │
+  │                   user@email.com                         │
+  │                   Member                                 │
+  │                                                         │
+  │     [Watchlist count]  [— Reviews]  [— Friends]         │
+  │                                                         │
+  │     [🔖 My Watchlist]                                   │
+  │                                                         │
+  │     [🚪 Logout]                                         │
+  └─────────────────────────────────────────────────────────┘
+
+  → "My Watchlist" links to /watchlist.
+  → "Logout" clears the token and redirects to /login.
+
+================================================================================
+END OF DOCUMENTATION
+================================================================================

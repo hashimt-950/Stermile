@@ -10,39 +10,57 @@ const GENRE_MAP = {
 
 const FILTERS = ["All", "Drama", "Thriller", "Romance", "Sci-Fi"];
 
-function Discover({ watchlist, setWatchlist }) {
+function Discover({ watchlist, setWatchlist, searchQuery }) {
   const [movies, setMovies] = useState([]);
   const [filter, setFilter] = useState("All");
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const getDiscover = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:3000/api/movies/discover",
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-            },
-          },
-        );
-
-        if (response.status === 401) {
-          localStorage.removeItem("token");
-          navigate("/login");
-          return;
-        }
-
-        const data = await response.json();
-        setMovies(data);
-      } catch (error) {
-        console.log("error fetching discover movies: ", error.message);
+  const fetchDiscover = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/movies/discover",
+        {
+          headers: { Authorization: `bearer ${token}` },
+        },
+      );
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/login");
+        return;
       }
-    };
+      const data = await response.json();
+      setMovies(data);
+    } catch (error) {
+      console.log("error fetching discover movies: ", error.message);
+    }
+  };
 
-    getDiscover();
-  }, []);
+  const fetchSearch = async (query) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/movies/search?query=${encodeURIComponent(query)}`,
+        { headers: { Authorization: `bearer ${token}` } },
+      );
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/login");
+        return;
+      }
+      const data = await response.json();
+      setMovies(data);
+    } catch (error) {
+      console.log("error searching movies: ", error.message);
+    }
+  };
+
+  useEffect(() => {
+    if (searchQuery && searchQuery.trim()) {
+      fetchSearch(searchQuery);
+    } else {
+      fetchDiscover();
+    }
+  }, [searchQuery]);
 
   const inWatchlist = (movieId) =>
     watchlist.some((m) => String(m.movieId) === String(movieId));
@@ -129,19 +147,25 @@ function Discover({ watchlist, setWatchlist }) {
     <section className="section">
       <div className="sec-head">
         <h2 className="sec-title">
-          Discover <em>films</em>
+          {searchQuery && searchQuery.trim() ? (
+            <>Search <em>results</em></>
+          ) : (
+            <>Discover <em>films</em></>
+          )}
         </h2>
-        <div className="filter-row">
-          {FILTERS.map((f) => (
-            <button
-              key={f}
-              className={`f-btn${filter === f ? " on" : ""}`}
-              onClick={() => setFilter(f)}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
+        {(!searchQuery || !searchQuery.trim()) && (
+          <div className="filter-row">
+            {FILTERS.map((f) => (
+              <button
+                key={f}
+                className={`f-btn${filter === f ? " on" : ""}`}
+                onClick={() => setFilter(f)}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       <div className="disc-grid">
         {displayed.map((movie) => (
@@ -198,7 +222,11 @@ function Discover({ watchlist, setWatchlist }) {
           </Link>
         ))}
         {displayed.length === 0 && (
-          <div className="no-res">No films found</div>
+          <div className="no-res">
+            {searchQuery && searchQuery.trim()
+              ? <>No films found for &ldquo;{searchQuery}&rdquo;</>
+              : "No films found"}
+          </div>
         )}
       </div>
     </section>

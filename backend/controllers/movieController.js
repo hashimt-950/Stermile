@@ -123,4 +123,22 @@ const byGenre = async (req, res) => {
   }
 };
 
-module.exports = { nowPlaying, topRated, discover, movieById, byGenre };
+const searchMovies = async (req, res) => {
+  const query = req.query.query;
+  if (!query) return res.status(400).json({ error: "query parameter is required" });
+  try {
+    const response = await fetch(
+      `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&language=en-US&page=1`,
+      {
+        headers: { Authorization: `Bearer ${process.env.TMDB_TOKEN}` },
+      },
+    );
+    const data = await response.json();
+    res.json(data.results || []);
+  } catch (error) {
+    console.log("error while searching movies: ", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { nowPlaying, topRated, discover, movieById, byGenre, searchMovies };
