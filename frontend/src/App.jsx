@@ -8,6 +8,8 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import MovieDetails from "../pages/MovieDetails";
 import Layout from "../components/Layout";
 import Watchlist from "../pages/Watchlist";
+import Friends from "../pages/Friends";
+import FriendWatchlist from "../pages/FriendWatchlist";
 
 function App() {
   return (
@@ -26,6 +28,8 @@ function App() {
             <Route path="/movie/:id" element={<MovieDetails />} />
             <Route path="/watchlist" element={<Watchlist />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/friends" element={<Friends />} />
+            <Route path="/friends/:userId/watchlist" element={<FriendWatchlist />} />
           </Route>
 
           <Route path="/signup" element={<Signup />} />

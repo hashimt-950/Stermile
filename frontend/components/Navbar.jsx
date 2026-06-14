@@ -7,13 +7,15 @@ function Navbar() {
 
   const token = localStorage.getItem("token");
   const userInitial = token
-    ? JSON.parse(atob(token.split(".")[1]))?.email?.charAt(0).toUpperCase() || "U"
+    ? JSON.parse(atob(token.split(".")[1]))
+        ?.email?.charAt(0)
+        .toUpperCase() || "U"
     : "U";
 
   const navItems = [
     { label: "Discover", path: "/" },
     { label: "My List", path: "/watchlist" },
-    { label: "Friends", path: null },
+    { label: "Friends", path: "/friends" },
   ];
 
   return (
@@ -36,7 +38,9 @@ function Navbar() {
       </div>
 
       <div className="profile-container">
-        <div className="avatar" onClick={() => navigate("/profile")}>{userInitial}</div>
+        <div className="avatar" onClick={() => navigate("/profile")}>
+          {userInitial}
+        </div>
       </div>
     </div>
   );

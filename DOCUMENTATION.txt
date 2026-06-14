@@ -364,7 +364,8 @@ Ticker.jsx
 MovieHero.jsx
 ─────────────────────
   - Fetches nowPlaying (5 pages = ~100 movies).
-  - Picks one random movie using Math.random() on every render.
+  - Picks one random movie inside the useEffect when data arrives and
+    stores it in state (so it doesn't re-pick on every re-render).
   - Background: poster_path at w1280 as CSS background-image with
     12% default opacity + gradient fog overlay.
   - Displays: "Featured tonight" eyebrow, "Now Screening" badge with
